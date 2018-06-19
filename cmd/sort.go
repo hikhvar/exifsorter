@@ -16,7 +16,10 @@ package cmd
 
 import (
 	"fmt"
+	"os"
 
+	"github.com/hikhvar/exifsorter/pkg/archive"
+	"github.com/hikhvar/exifsorter/pkg/exploration"
 	"github.com/spf13/cobra"
 )
 
@@ -26,7 +29,20 @@ var sortCmd = &cobra.Command{
 	Short: "sorts media data according to their exif metadata",
 	Long:  `sorts media data according to their exif metadata`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("sort called")
+		a := archive.NewAlgorithm(cmd.Flag("target").Value.String())
+		_, files, err := exploration.InitialFiles(cmd.Flag("source").Value.String())
+		if err != nil {
+			fmt.Println(err)
+			os.Exit(1)
+		}
+		for _, f := range files {
+			fmt.Println(f)
+			err = a.Sort(f)
+			if err != nil && err.Error() != "given file is not a media file" {
+				fmt.Printf("%v: %v", f, err.Error())
+				os.Exit(1)
+			}
+		}
 	},
 }
 
@@ -37,9 +53,9 @@ func init() {
 
 	// Cobra supports Persistent Flags which will work for this command
 	// and all subcommands, e.g.:
-	// sortCmd.PersistentFlags().String("foo", "", "A help for foo")
+	sortCmd.PersistentFlags().StringP("source", "s", "", "source directory")
 
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// sortCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	sortCmd.PersistentFlags().StringP("target", "t", "", "target directory")
+
+	sortCmd.PersistentFlags().BoolP("dry-run", "d", false, "dry run. Don't edit anything.")
 }

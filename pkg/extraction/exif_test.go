@@ -33,14 +33,16 @@ func TestCaptureDate(t *testing.T) {
 			timeStamp: parseTimeString(t, "2015-12-24 13:59:17 +0100 CET"),
 		},
 		{
-			name: "sample2.mp4",
+			name:      "sample2.mp4",
+			timeStamp: parseTimeString(t, "2016-04-02 09:23:56 +0200 CEST"),
 		},
 		{
-			name: "sample3.txt",
+			name:      "sample3.txt",
+			timeStamp: parseTimeString(t, "2018-06-15 15:24:26.263360885 +0200 CEST"),
 		},
 		{
 			name:          "sample-not-exist",
-			expectedError: "could not open file to examine capture date: open /home/christoph/workspace/GO/src/github.com/hikhvar/exifsorter/fixtures/sample-not-exist: no such file or directory",
+			expectedError: "could neither read exif meta data nor file modification time: invalid argument",
 		},
 	}
 	for _, test := range tests {
@@ -49,6 +51,8 @@ func TestCaptureDate(t *testing.T) {
 			assert.Equal(t, test.timeStamp, ts)
 			if test.expectedError != "" {
 				assert.EqualError(t, err, test.expectedError)
+			} else {
+				assert.Nil(t, err)
 			}
 		})
 	}
