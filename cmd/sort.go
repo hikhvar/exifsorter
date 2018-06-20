@@ -36,7 +36,7 @@ var sortCmd = &cobra.Command{
 		defer cancelFunc()
 		srcDir, dstDir := srcAndDstDir(cmd)
 		a := archive.NewAlgorithm(dstDir)
-		dirs, fs, err := exploration.InitialFiles(srcDir)
+		dirs, fs, err := exploration.InitialFiles(srcDir, []string{".@__thumb"})
 		if err != nil {
 			fmt.Println(err)
 			os.Exit(1)

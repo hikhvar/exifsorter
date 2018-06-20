@@ -29,6 +29,7 @@ func TestInitialFiles(t *testing.T) {
 		dir                 string
 		cleanDir            bool
 		filesToTouch        []touchFile
+		ignoreDirs          []string
 		expectedFiles       []string
 		expectedDirectories []string
 		expectedError       error
@@ -65,6 +66,36 @@ func TestInitialFiles(t *testing.T) {
 			expectedDirectories: []string{"", "foo"},
 			expectedFiles:       []string{"baz", "foo/bar"},
 		},
+		{
+			name:     "dir with file and subdir and ignored subdir",
+			dir:      createTempDir(t),
+			cleanDir: true,
+			filesToTouch: []touchFile{
+				{
+					name:  "foo",
+					isDir: true,
+				},
+				{
+					name:  ".@__thumb",
+					isDir: true,
+				},
+				{
+					name:  ".@__thumb/bar",
+					isDir: false,
+				},
+				{
+					name:  "foo/bar",
+					isDir: false,
+				},
+				{
+					name:  "baz",
+					isDir: false,
+				},
+			},
+			ignoreDirs:          []string{".@__thumb"},
+			expectedDirectories: []string{"", "foo"},
+			expectedFiles:       []string{"baz", "foo/bar"},
+		},
 	}
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
@@ -72,7 +103,7 @@ func TestInitialFiles(t *testing.T) {
 				defer os.RemoveAll(test.dir)
 			}
 			touchFiles(t, test.dir, test.filesToTouch)
-			dirs, files, err := InitialFiles(test.dir)
+			dirs, files, err := InitialFiles(test.dir, test.ignoreDirs)
 			joinPathsWithTempFile(test.dir, test.expectedFiles)
 			joinPathsWithTempFile(test.dir, test.expectedDirectories)
 			assert.Equal(t, test.expectedFiles, files)

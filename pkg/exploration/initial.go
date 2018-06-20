@@ -15,18 +15,24 @@
 package exploration
 
 import (
+	"fmt"
 	"os"
 	"path/filepath"
 )
 
-// InitialFiles return all files and directories in the tree below rootDir and the rootDir itself
-func InitialFiles(rootDir string) (directories []string, files []string, err error) {
+// InitialFiles return all files and directories in the tree below rootDir and the rootDir itself.
+// ignoreDirs is a list of relativ subdirs to ignore
+func InitialFiles(rootDir string, ignoreDirs []string) (directories []string, files []string, err error) {
 	walkFunc := func(path string, info os.FileInfo, err error) error {
 		if err != nil && info == nil {
 			return nil
 		}
 		if info.IsDir() {
-			directories = append(directories, path)
+			if !isIgnored(rootDir, ignoreDirs, path) {
+				directories = append(directories, path)
+			} else {
+				return filepath.SkipDir
+			}
 		} else {
 			files = append(files, path)
 		}
@@ -34,4 +40,17 @@ func InitialFiles(rootDir string) (directories []string, files []string, err err
 	}
 	err = filepath.Walk(rootDir, walkFunc)
 	return directories, files, err
+}
+
+func isIgnored(rootDir string, ignoreDirs []string, dir string) bool {
+	d, err := filepath.Rel(rootDir, dir)
+	if err != nil {
+		panic(fmt.Sprintf("%s must be relative to %s. Error: %s", dir, rootDir, err.Error()))
+	}
+	for _, i := range ignoreDirs {
+		if d == i {
+			return true
+		}
+	}
+	return false
 }
