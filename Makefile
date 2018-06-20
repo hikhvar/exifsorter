@@ -14,3 +14,12 @@ vet:
 
 container:
 	docker build -t exifsorter .
+
+Gopkg.lock:
+	dep ensure -no-vendor
+
+Gopkg.toml:
+	dep init
+
+vendor: Gopkg.lock
+	dep ensure -vendor-only
