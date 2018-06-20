@@ -15,11 +15,14 @@
 package cmd
 
 import (
+	"context"
 	"fmt"
 	"os"
 
+	"github.com/fsnotify/fsnotify"
 	"github.com/hikhvar/exifsorter/pkg/archive"
 	"github.com/hikhvar/exifsorter/pkg/exploration"
+	"github.com/hikhvar/exifsorter/pkg/files"
 	"github.com/spf13/cobra"
 )
 
@@ -29,21 +32,59 @@ var sortCmd = &cobra.Command{
 	Short: "sorts media data according to their exif metadata",
 	Long:  `sorts media data according to their exif metadata`,
 	Run: func(cmd *cobra.Command, args []string) {
-		a := archive.NewAlgorithm(cmd.Flag("target").Value.String())
-		_, files, err := exploration.InitialFiles(cmd.Flag("source").Value.String())
+		ctx, cancelFunc := context.WithCancel(context.Background())
+		defer cancelFunc()
+		srcDir, dstDir := srcAndDstDir(cmd)
+		a := archive.NewAlgorithm(dstDir)
+		dirs, fs, err := exploration.InitialFiles(srcDir)
 		if err != nil {
 			fmt.Println(err)
 			os.Exit(1)
 		}
-		for _, f := range files {
-			fmt.Println(f)
-			err = a.Sort(f)
+		for _, f := range fs {
+			n, err := a.Sort(f)
 			if err != nil && err.Error() != "given file is not a media file" {
 				fmt.Printf("%v: %v", f, err.Error())
 				os.Exit(1)
 			}
+			fmt.Printf("%s\t-->\t%s\n", f, n)
+		}
+		fmt.Println("finished intial run. Watch folder for changes.")
+		watcher, err := exploration.NewRecursiveWatcher(ctx, dirs...)
+		if err != nil {
+			fmt.Println(err)
+			os.Exit(1)
+		}
+		for {
+			select {
+			case err = <-watcher.Errors:
+				fmt.Println(err)
+			case e := <-watcher.Events:
+				if e.Op == fsnotify.Remove {
+					break
+				}
+				f := e.Name
+				normalFile, err := files.IsNormalFile(f)
+				if err == nil {
+					if normalFile {
+						n, err := a.Sort(f)
+						if err != nil && err.Error() != "given file is not a media file" {
+							fmt.Printf("%v: %v", f, err.Error())
+						} else {
+							fmt.Printf("%s\t-->\t%s\n", f, n)
+						}
+
+					}
+				} else {
+					fmt.Printf("could not stat file: %v\n", err)
+				}
+			}
 		}
 	},
+}
+
+func srcAndDstDir(cmd *cobra.Command) (string, string) {
+	return cmd.Flag("source").Value.String(), cmd.Flag("target").Value.String()
 }
 
 func init() {

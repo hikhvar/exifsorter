@@ -42,26 +42,26 @@ func NewAlgorithm(dir string) *Algorithm {
 	}
 }
 
-func (a *Algorithm) Sort(fname string) error {
+func (a *Algorithm) Sort(fname string) (string, error) {
 	isMedia, err := a.isMedia(fname)
 	if err != nil {
-		return errors.Wrap(err, "could not determine media type")
+		return "", errors.Wrap(err, "could not determine media type")
 	}
 	if !isMedia {
-		return errors.New("given file is not a media file")
+		return "", errors.New("given file is not a media file")
 	}
 	date, err := a.extractor(fname)
 	if err != nil {
-		return errors.Wrap(err, "could not determine creation date of media file")
+		return "", errors.Wrap(err, "could not determine creation date of media file")
 	}
 	year, month := getYearMonth(date)
 	targetDir := path.Join(a.archiveDir, fmt.Sprintf("%d/%02d", year, month))
 	err = a.directoryCreator(targetDir, os.ModePerm)
 	if err != nil {
-		return errors.Wrapf(err, "could not create target dir '%s'", targetDir)
+		return "", errors.Wrapf(err, "could not create target dir '%s'", targetDir)
 	}
 	targetFile := path.Join(targetDir, path.Base(fname))
-	return a.copier(fname, targetFile)
+	return targetFile, a.copier(fname, targetFile)
 }
 
 func getYearMonth(t time.Time) (int, int) {

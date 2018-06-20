@@ -12,6 +12,15 @@ import (
 	"github.com/pkg/errors"
 )
 
+// IsNormalFile returns true if the given file is not a directory
+func IsNormalFile(fname string) (bool, error) {
+	fInfo, err := os.Stat(fname)
+	if err != nil {
+		return false, err
+	}
+	return !fInfo.IsDir(), nil
+}
+
 // File copies src file to dst. dst is truncated or created if not present. The FileMode and Modtimes are preserved.
 func Copy(src, dst string) error {
 	fInfo, err := os.Stat(src)
