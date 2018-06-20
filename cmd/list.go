@@ -29,7 +29,7 @@ var listCmd = &cobra.Command{
 	Long:  `List the found exif meta data for a subdirectory`,
 	Args:  cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
-		_, files, err := exploration.InitialFiles(args[0])
+		_, files, err := exploration.InitialFiles(args[0], nil)
 		if err != nil {
 			fmt.Printf("could not list all files %s", err.Error())
 		}
