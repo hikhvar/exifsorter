@@ -27,6 +27,7 @@ import (
 	"github.com/pkg/errors"
 
 	"github.com/fsnotify/fsnotify"
+	"github.com/gobwas/glob"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -42,6 +43,7 @@ func TestNewRecursiveWatcher(t *testing.T) {
 		cleanDir       bool
 		filesToTouch   []touchFile
 		expectedEvents []fsnotify.Event
+		ignores        []Matcher
 		expectedError  error
 		expectFailure  bool
 	}{
@@ -93,6 +95,52 @@ func TestNewRecursiveWatcher(t *testing.T) {
 			},
 		},
 		{
+			name:     "emtpy Dir with create in supdirectory and ignores",
+			dir:      createTempDir(t),
+			cleanDir: true,
+			filesToTouch: []touchFile{
+				{
+					isDir: true,
+					name:  "foo",
+				},
+				{
+					name:  ".@__thumb",
+					isDir: true,
+				},
+				{
+					name:  ".@__thumb/bar",
+					isDir: false,
+				},
+				{
+					name:  "foo/.@__thumb",
+					isDir: true,
+				},
+				{
+					name:  "foo/.@__thumb/bar",
+					isDir: false,
+				},
+				{
+					name:  "foo/bar",
+					isDir: false,
+				},
+				{
+					name:  "foo/.syncthing.foobar.tmp",
+					isDir: false,
+				},
+			},
+			ignores: []Matcher{glob.MustCompile("**.@__thumb**"), glob.MustCompile("**.syncthing.*tmp")},
+			expectedEvents: []fsnotify.Event{
+				{
+					Op:   fsnotify.Create,
+					Name: "foo",
+				},
+				{
+					Op:   fsnotify.Create,
+					Name: "foo/bar",
+				},
+			},
+		},
+		{
 			name:          "dir does not exists",
 			dir:           "/tmp/foo-bar",
 			cleanDir:      false,
@@ -107,7 +155,7 @@ func TestNewRecursiveWatcher(t *testing.T) {
 			}
 			ctx, cancelFunc := context.WithTimeout(context.Background(), 1*time.Second)
 			defer cancelFunc()
-			w, err := NewRecursiveWatcher(ctx, test.dir)
+			w, err := NewRecursiveWatcher(ctx, test.ignores, test.dir)
 			if test.expectedError != nil {
 				if !assert.NotNil(t, err) {
 					return

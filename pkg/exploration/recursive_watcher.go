@@ -25,13 +25,14 @@ import (
 
 type RecursiveWatcher struct {
 	watcher *fsnotify.Watcher
+	ignores []Matcher
 	Events  chan fsnotify.Event
 	Errors  chan error
 }
 
 // NewRecursiveWatcher creates a new recursive file watcher. You can listen for errors and events via the channels
 // Events and Errors
-func NewRecursiveWatcher(ctx context.Context, initialDirs ...string) (*RecursiveWatcher, error) {
+func NewRecursiveWatcher(ctx context.Context, ignores []Matcher, initialDirs ...string) (*RecursiveWatcher, error) {
 	watcher, err := fsnotify.NewWatcher()
 	if err != nil {
 		return nil, errors.Wrap(err, "could not create watcher")
@@ -46,6 +47,7 @@ func NewRecursiveWatcher(ctx context.Context, initialDirs ...string) (*Recursive
 
 	r := &RecursiveWatcher{
 		watcher: watcher,
+		ignores: ignores,
 		Events:  make(chan fsnotify.Event, 10),
 		Errors:  make(chan error),
 	}
@@ -65,8 +67,10 @@ func (r *RecursiveWatcher) run(ctx context.Context) {
 		case e := <-r.watcher.Errors:
 			r.Errors <- e
 		case e := <-r.watcher.Events:
-			r.processEvent(e)
-			r.Events <- e
+			if !isIgnored(r.ignores, e.Name) {
+				r.processEvent(e)
+				r.Events <- e
+			}
 		}
 	}
 }

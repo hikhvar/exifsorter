@@ -14,6 +14,21 @@
   version = "v1.4.7"
 
 [[projects]]
+  name = "github.com/gobwas/glob"
+  packages = [
+    ".",
+    "compiler",
+    "match",
+    "syntax",
+    "syntax/ast",
+    "syntax/lexer",
+    "util/runes",
+    "util/strings"
+  ]
+  revision = "5ccd90ef52e1e632236f7326478d4faa74f99438"
+  version = "v0.2.3"
+
+[[projects]]
   name = "github.com/h2non/filetype"
   packages = ["."]
   revision = "cc14fdc9ca0e4c2bafad7458f6ff79fd3947cfbb"
@@ -184,6 +199,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "cc5ef912d0519cb72aa2549301ff2546430637dc693ef3a9852ac2b97eead450"
+  inputs-digest = "e87962336342089c1b2fc2f5c8c82419fa15803ddbe9937c892e9221c2751bce"
   solver-name = "gps-cdcl"
   solver-version = 1

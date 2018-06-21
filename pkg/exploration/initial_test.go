@@ -20,6 +20,7 @@ import (
 
 	"path"
 
+	"github.com/gobwas/glob"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -29,7 +30,7 @@ func TestInitialFiles(t *testing.T) {
 		dir                 string
 		cleanDir            bool
 		filesToTouch        []touchFile
-		ignoreDirs          []string
+		ignores             []Matcher
 		expectedFiles       []string
 		expectedDirectories []string
 		expectedError       error
@@ -84,7 +85,19 @@ func TestInitialFiles(t *testing.T) {
 					isDir: false,
 				},
 				{
+					name:  "foo/.@__thumb",
+					isDir: true,
+				},
+				{
+					name:  "foo/.@__thumb/bar",
+					isDir: false,
+				},
+				{
 					name:  "foo/bar",
+					isDir: false,
+				},
+				{
+					name:  "foo/.syncthing.foobar.tmp",
 					isDir: false,
 				},
 				{
@@ -92,7 +105,7 @@ func TestInitialFiles(t *testing.T) {
 					isDir: false,
 				},
 			},
-			ignoreDirs:          []string{".@__thumb"},
+			ignores:             []Matcher{glob.MustCompile("**.@__thumb**"), glob.MustCompile("**.syncthing.*tmp")},
 			expectedDirectories: []string{"", "foo"},
 			expectedFiles:       []string{"baz", "foo/bar"},
 		},
@@ -103,7 +116,7 @@ func TestInitialFiles(t *testing.T) {
 				defer os.RemoveAll(test.dir)
 			}
 			touchFiles(t, test.dir, test.filesToTouch)
-			dirs, files, err := InitialFiles(test.dir, test.ignoreDirs)
+			dirs, files, err := InitialFiles(test.dir, test.ignores)
 			joinPathsWithTempFile(test.dir, test.expectedFiles)
 			joinPathsWithTempFile(test.dir, test.expectedDirectories)
 			assert.Equal(t, test.expectedFiles, files)

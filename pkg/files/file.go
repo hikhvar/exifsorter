@@ -9,6 +9,8 @@ import (
 
 	"path"
 
+	"hash"
+
 	"github.com/pkg/errors"
 )
 
@@ -22,40 +24,41 @@ func IsNormalFile(fname string) (bool, error) {
 }
 
 // File copies src file to dst. dst is truncated or created if not present. The FileMode and Modtimes are preserved.
-func Copy(src, dst string) error {
+func Copy(src, dst string, hFunc hash.Hash) ([]byte, error) {
 	fInfo, err := os.Stat(src)
 	if err != nil {
-		return errors.Wrap(err, "can not get file info of src")
+		return nil, errors.Wrap(err, "can not get file info of src")
 	}
 	if fInfo.IsDir() {
-		return errors.New("src is a directory")
+		return nil, errors.New("src is a directory")
 	}
 	targetDiskSize, err := getFreeDiskSize(dst)
 	if err != nil {
-		return errors.Wrap(err, "can not get remaining disk size in dst")
+		return nil, errors.Wrap(err, "can not get remaining disk size in dst")
 	}
 	if targetDiskSize < uint64(fInfo.Size()) {
-		return errors.New("not enough space left in dst")
+		return nil, errors.New("not enough space left in dst")
 	}
 	srcFile, err := os.Open(src)
 	if err != nil {
-		return errors.Wrap(err, "can not open src file")
+		return nil, errors.Wrap(err, "can not open src file")
 	}
 	defer srcFile.Close()
 	dstFile, err := os.OpenFile(dst, os.O_RDWR|os.O_TRUNC|os.O_CREATE, fInfo.Mode())
 	if err != nil {
-		return errors.Wrap(err, "can not open dst file")
+		return nil, errors.Wrap(err, "can not open dst file")
 	}
 	defer dstFile.Close()
-	_, err = io.Copy(dstFile, srcFile)
+	dstWriter := io.MultiWriter(dstFile, hFunc)
+	_, err = io.Copy(dstWriter, srcFile)
 	if err != nil {
-		return errors.Wrap(err, "error while copying file")
+		return nil, errors.Wrap(err, "error while copying file")
 	}
 	err = os.Chtimes(dst, fInfo.ModTime(), fInfo.ModTime())
 	if err != nil {
-		return errors.Wrap(err, "can not copy change times from src")
+		return nil, errors.Wrap(err, "can not copy change times from src")
 	}
-	return dstFile.Sync()
+	return hFunc.Sum(nil), dstFile.Sync()
 }
 
 // getFreeDiskSize returns the available disk size in bytes

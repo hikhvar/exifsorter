@@ -53,3 +53,7 @@ required = ["github.com/magefile/mage/mage"]
 [[constraint]]
   name = "github.com/xor-gate/goexif2"
   version = "1.1.0"
+
+[[constraint]]
+  name = "github.com/gobwas/glob"
+  version = "0.2.3"

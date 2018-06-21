@@ -26,6 +26,8 @@ import (
 	"github.com/spf13/cobra"
 )
 
+var ignorePatterns []string
+
 // sortCmd represents the sort command
 var sortCmd = &cobra.Command{
 	Use:   "sort",
@@ -36,7 +38,12 @@ var sortCmd = &cobra.Command{
 		defer cancelFunc()
 		srcDir, dstDir := srcAndDstDir(cmd)
 		a := archive.NewAlgorithm(dstDir)
-		dirs, fs, err := exploration.InitialFiles(srcDir, []string{".@__thumb"})
+		ignores, err := exploration.GobwasMatcherFromPatterns(ignorePatterns)
+		if err != nil {
+			fmt.Printf("not valid globs '%v': %v", ignorePatterns, err.Error())
+			os.Exit(1)
+		}
+		dirs, fs, err := exploration.InitialFiles(srcDir, ignores)
 		if err != nil {
 			fmt.Println(err)
 			os.Exit(1)
@@ -50,7 +57,7 @@ var sortCmd = &cobra.Command{
 			fmt.Printf("%s\t-->\t%s\n", f, n)
 		}
 		fmt.Println("finished intial run. Watch folder for changes.")
-		watcher, err := exploration.NewRecursiveWatcher(ctx, dirs...)
+		watcher, err := exploration.NewRecursiveWatcher(ctx, ignores, dirs...)
 		if err != nil {
 			fmt.Println(err)
 			os.Exit(1)
@@ -97,6 +104,8 @@ func init() {
 	sortCmd.PersistentFlags().StringP("source", "s", "", "source directory")
 
 	sortCmd.PersistentFlags().StringP("target", "t", "", "target directory")
+
+	sortCmd.PersistentFlags().StringArrayVarP(&ignorePatterns, "ignores", "i", []string{"**.@__thumb**", "**.syncthing.*tmp"}, "file patterns to ignore. For supported patterns see https://github.com/gobwas/glob .")
 
 	sortCmd.PersistentFlags().BoolP("dry-run", "d", false, "dry run. Don't edit anything.")
 }
