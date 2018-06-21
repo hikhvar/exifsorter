@@ -51,10 +51,10 @@ var sortCmd = &cobra.Command{
 		for _, f := range fs {
 			n, err := a.Sort(f)
 			if err != nil && err.Error() != "given file is not a media file" {
-				fmt.Printf("%v: %v", f, err.Error())
-				os.Exit(1)
+				fmt.Printf("Can't sort file %v: %v", f, err.Error())
+			} else {
+				fmt.Printf("%s\t-->\t%s\n", f, n)
 			}
-			fmt.Printf("%s\t-->\t%s\n", f, n)
 		}
 		fmt.Println("finished intial run. Watch folder for changes.")
 		watcher, err := exploration.NewRecursiveWatcher(ctx, ignores, dirs...)
