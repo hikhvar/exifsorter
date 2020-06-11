@@ -1,4 +1,4 @@
-FROM golang:1.10-alpine as builder
+FROM golang:1.14-alpine as builder
 
 COPY . /go/src/github.com/hikhvar/exifsorter
 WORKDIR  /go/src/github.com/hikhvar/exifsorter
