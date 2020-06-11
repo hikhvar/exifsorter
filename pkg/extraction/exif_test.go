@@ -59,7 +59,7 @@ func TestCaptureDate(t *testing.T) {
 				assert.Nil(t, os.Chtimes(fileUnderTest, test.timeStamp, test.timeStamp))
 			}
 			ts, err := CaptureDate(fileUnderTest)
-			assert.Equal(t, test.timeStamp, ts)
+			assert.True(t, test.timeStamp.Equal(ts))
 			if test.expectedError != "" {
 				assert.EqualError(t, err, fmt.Sprintf(test.expectedError, fileUnderTest))
 			} else {
