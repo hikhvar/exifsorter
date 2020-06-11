@@ -16,6 +16,7 @@ package exploration
 
 import (
 	"context"
+	"log"
 
 	"os"
 
@@ -83,7 +84,10 @@ func (r *RecursiveWatcher) processEvent(e fsnotify.Event) {
 			return
 		}
 		if finfo.IsDir() {
-			r.watcher.Add(e.Name)
+			err := r.watcher.Add(e.Name)
+			if err != nil {
+				log.Printf("failed to add directory (%s) to inotify watcher: %s", e.Name, err.Error())
+			}
 		}
 	}
 }
