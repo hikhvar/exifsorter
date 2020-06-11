@@ -15,6 +15,7 @@
 package extraction
 
 import (
+	"fmt"
 	"time"
 
 	"os"
@@ -38,7 +39,14 @@ func init() {
 }
 
 // CaptureDate returns the point in time the capturing device created the media file
-func CaptureDate(fname string) (time.Time, error) {
+func CaptureDate(fname string) (retTime time.Time, retErr error) {
+	defer func() {
+		r := recover()
+		if r != nil {
+			retTime = time.Time{}
+			retErr = fmt.Errorf("catched panic while processing file (%s): %v", fname, r)
+		}
+	}()
 	fInfo, fInfoErr := os.Stat(fname)
 	f, err := os.Open(fname)
 	if err != nil {
