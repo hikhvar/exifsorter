@@ -15,6 +15,7 @@
 package extraction
 
 import (
+	"fmt"
 	"testing"
 
 	"time"
@@ -42,15 +43,16 @@ func TestCaptureDate(t *testing.T) {
 		},
 		{
 			name:          "sample-not-exist",
-			expectedError: "could neither read exif meta data nor file modification time: invalid argument",
+			expectedError: "failed to open or fstat file.: open %s: no such file or directory",
 		},
 	}
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			ts, err := CaptureDate(fixturePath(test.name))
+			fileUnderTest := fixturePath(test.name)
+			ts, err := CaptureDate(fileUnderTest)
 			assert.Equal(t, test.timeStamp, ts)
 			if test.expectedError != "" {
-				assert.EqualError(t, err, test.expectedError)
+				assert.EqualError(t, err, fmt.Sprintf(test.expectedError, fileUnderTest))
 			} else {
 				assert.Nil(t, err)
 			}

@@ -15,6 +15,7 @@
 package extraction
 
 import (
+	"fmt"
 	"path"
 	"testing"
 
@@ -44,16 +45,16 @@ func TestIsVideoOrImage(t *testing.T) {
 		{
 			name:          "sample-not-exist",
 			fileOrVideo:   false,
-			expectedError: "could not open file to determine file type: open /home/christoph/workspace/GO/src/github.com/hikhvar/exifsorter/fixtures/sample-not-exist: no such file or directory",
+			expectedError: "could not open file to determine file type: open %s: no such file or directory",
 		},
 	}
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-
-			is, err := IsVideoOrImage(fixturePath(test.name))
+			fileUnderTest := fixturePath(test.name)
+			is, err := IsVideoOrImage(fileUnderTest)
 			assert.Equal(t, test.fileOrVideo, is)
 			if test.expectedError != "" {
-				assert.EqualError(t, err, test.expectedError)
+				assert.EqualError(t, err, fmt.Sprintf(test.expectedError, fileUnderTest))
 			}
 		})
 	}
