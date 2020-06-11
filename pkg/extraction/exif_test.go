@@ -16,6 +16,7 @@ package extraction
 
 import (
 	"fmt"
+	"os"
 	"testing"
 
 	"time"
@@ -27,28 +28,36 @@ func TestCaptureDate(t *testing.T) {
 	tests := []struct {
 		name          string
 		timeStamp     time.Time
+		setTimestamp  bool
 		expectedError string
 	}{
 		{
-			name:      "sample1.JPG",
-			timeStamp: parseTimeString(t, "2015-12-24 13:59:17 +0100 CET"),
+			name:         "sample1.JPG",
+			setTimestamp: true,
+			timeStamp:    parseTimeString(t, "2015-12-24 13:59:17 +0100 CET"),
 		},
 		{
-			name:      "sample2.mp4",
-			timeStamp: parseTimeString(t, "2016-04-02 09:23:56 +0200 CEST"),
+			name:         "sample2.mp4",
+			setTimestamp: true,
+			timeStamp:    parseTimeString(t, "2016-04-02 09:23:56 +0200 CEST"),
 		},
 		{
-			name:      "sample3.txt",
-			timeStamp: parseTimeString(t, "2018-06-15 15:24:26.263360885 +0200 CEST"),
+			name:         "sample3.txt",
+			setTimestamp: true,
+			timeStamp:    parseTimeString(t, "2018-06-15 15:24:26.263360885 +0200 CEST"),
 		},
 		{
 			name:          "sample-not-exist",
+			setTimestamp:  false,
 			expectedError: "failed to open or fstat file.: open %s: no such file or directory",
 		},
 	}
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
 			fileUnderTest := fixturePath(test.name)
+			if test.setTimestamp {
+				assert.Nil(t, os.Chtimes(fileUnderTest, test.timeStamp, test.timeStamp))
+			}
 			ts, err := CaptureDate(fileUnderTest)
 			assert.Equal(t, test.timeStamp, ts)
 			if test.expectedError != "" {
