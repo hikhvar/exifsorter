@@ -1,25 +1,26 @@
 
 .PHONY: test
 
+
 build: bin/exifsorter
 
-bin/exifsorter: test vet
-	go build -o bin/exifsorter .
+GOVARIABLES=GO111MODULE=on
+
+clean:
+	rm -rf bin/exifsorter
+
+bin/exifsorter:
+	$(GOVARIABLES) go build -o bin/exifsorter .
 
 test:
-	go test -cover -race ./...
+	$(GOVARIABLES) go test -cover -race ./...
 
 vet:
-	go vet ./...
+	$(GOVARIABLES) go vet ./...
 
 container:
 	docker build -t exifsorter .
 
-Gopkg.lock:
-	dep ensure -no-vendor
-
-Gopkg.toml:
-	dep init
-
-vendor: Gopkg.lock
-	dep ensure -vendor-only
+vendor:
+	$(GOVARIABLES) go mod tidy
+	$(GOVARIABLES) go mod vendor

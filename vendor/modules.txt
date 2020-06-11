@@ -1,0 +1,95 @@
+# github.com/BurntSushi/toml v0.3.1
+## explicit
+# github.com/davecgh/go-spew v1.1.0
+## explicit
+github.com/davecgh/go-spew/spew
+# github.com/fsnotify/fsnotify v1.4.7
+## explicit
+github.com/fsnotify/fsnotify
+# github.com/gobwas/glob v0.2.3
+## explicit
+github.com/gobwas/glob
+github.com/gobwas/glob/compiler
+github.com/gobwas/glob/match
+github.com/gobwas/glob/syntax
+github.com/gobwas/glob/syntax/ast
+github.com/gobwas/glob/syntax/lexer
+github.com/gobwas/glob/util/runes
+github.com/gobwas/glob/util/strings
+# github.com/h2non/filetype v1.0.5
+## explicit
+github.com/h2non/filetype
+# github.com/hashicorp/hcl v0.0.0-20180404174102-ef8a98b0bbce
+## explicit
+github.com/hashicorp/hcl
+github.com/hashicorp/hcl/hcl/ast
+github.com/hashicorp/hcl/hcl/parser
+github.com/hashicorp/hcl/hcl/printer
+github.com/hashicorp/hcl/hcl/scanner
+github.com/hashicorp/hcl/hcl/strconv
+github.com/hashicorp/hcl/hcl/token
+github.com/hashicorp/hcl/json/parser
+github.com/hashicorp/hcl/json/scanner
+github.com/hashicorp/hcl/json/token
+# github.com/inconshreveable/mousetrap v1.0.0
+## explicit
+github.com/inconshreveable/mousetrap
+# github.com/magiconair/properties v1.8.0
+## explicit
+github.com/magiconair/properties
+# github.com/mitchellh/go-homedir v0.0.0-20180523094522-3864e76763d9
+## explicit
+github.com/mitchellh/go-homedir
+# github.com/mitchellh/mapstructure v0.0.0-20180511142126-bb74f1db0675
+## explicit
+github.com/mitchellh/mapstructure
+# github.com/pelletier/go-toml v1.2.0
+## explicit
+github.com/pelletier/go-toml
+# github.com/pkg/errors v0.8.0
+## explicit
+github.com/pkg/errors
+# github.com/pmezard/go-difflib v1.0.0
+## explicit
+github.com/pmezard/go-difflib/difflib
+# github.com/spf13/afero v1.1.1
+## explicit
+github.com/spf13/afero
+github.com/spf13/afero/mem
+# github.com/spf13/cast v1.2.0
+## explicit
+github.com/spf13/cast
+# github.com/spf13/cobra v0.0.3
+## explicit
+github.com/spf13/cobra
+# github.com/spf13/jwalterweatherman v0.0.0-20180109140146-7c0cea34c8ec
+## explicit
+github.com/spf13/jwalterweatherman
+# github.com/spf13/pflag v1.0.1
+## explicit
+github.com/spf13/pflag
+# github.com/spf13/viper v1.0.2
+## explicit
+github.com/spf13/viper
+# github.com/stretchr/testify v1.2.2
+## explicit
+github.com/stretchr/testify/assert
+# github.com/xor-gate/goexif2 v1.1.0
+## explicit
+github.com/xor-gate/goexif2/exif
+github.com/xor-gate/goexif2/mknote
+github.com/xor-gate/goexif2/tiff
+# golang.org/x/sys v0.0.0-20180615093615-8014b7b116a6
+## explicit
+golang.org/x/sys/unix
+# golang.org/x/text v0.3.0
+## explicit
+golang.org/x/text/transform
+golang.org/x/text/unicode/norm
+# gopkg.in/h2non/filetype.v1 v1.0.5
+## explicit
+gopkg.in/h2non/filetype.v1/matchers
+gopkg.in/h2non/filetype.v1/types
+# gopkg.in/yaml.v2 v2.2.1
+## explicit
+gopkg.in/yaml.v2
