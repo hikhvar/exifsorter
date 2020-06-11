@@ -34,17 +34,17 @@ func TestCaptureDate(t *testing.T) {
 		{
 			name:         "sample1.JPG",
 			setTimestamp: true,
-			timeStamp:    parseTimeString(t, "2015-12-24 13:59:17 +0100 CET").UTC().Local(),
+			timeStamp:    parseTimeString(t, "2015-12-24 13:59:17 +0100 CET").Local().UTC(),
 		},
 		{
 			name:         "sample2.mp4",
 			setTimestamp: true,
-			timeStamp:    parseTimeString(t, "2016-04-02 09:23:56 +0200 CEST").UTC().Local(),
+			timeStamp:    parseTimeString(t, "2016-04-02 09:23:56 +0200 CEST").Local().UTC(),
 		},
 		{
 			name:         "sample3.txt",
 			setTimestamp: true,
-			timeStamp:    parseTimeString(t, "2018-06-15 15:24:26.263360885 +0200 CEST").UTC().Local(),
+			timeStamp:    parseTimeString(t, "2018-06-15 15:24:26.263360885 +0200 CEST").Local().UTC(),
 		},
 		{
 			name:          "sample-not-exist",
