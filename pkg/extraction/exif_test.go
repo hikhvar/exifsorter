@@ -34,7 +34,7 @@ func TestCaptureDate(t *testing.T) {
 		{
 			name:         "sample1.JPG",
 			setTimestamp: true,
-			timeStamp:    parseTimeString(t, "2015-12-24 13:59:17 +0100 CET").Local(),
+			timeStamp:    parseTimeString(t, "2015-12-24 13:59:17 +0100 CET").In(mustBeLocation("Europe/Berlin")),
 		},
 		{
 			name:         "sample2.mp4",
@@ -59,7 +59,7 @@ func TestCaptureDate(t *testing.T) {
 				assert.Nil(t, os.Chtimes(fileUnderTest, test.timeStamp, test.timeStamp))
 			}
 			ts, err := CaptureDate(fileUnderTest)
-			assert.True(t, test.timeStamp.Equal(ts), "expected: %v, got: %v", test.timeStamp, ts)
+			assert.True(t, test.timeStamp.Equal(ts), "expected: %v in %v, got: %v in %v", test.timeStamp, test.timeStamp.Location(), ts, ts.Location())
 			if test.expectedError != "" {
 				assert.EqualError(t, err, fmt.Sprintf(test.expectedError, fileUnderTest))
 			} else {
@@ -75,4 +75,13 @@ func parseTimeString(t *testing.T, ts string) time.Time {
 		t.Fatalf("broken test setup: %s", err.Error())
 	}
 	return ti
+}
+
+func mustBeLocation(location string) *time.Location {
+	loc, err := time.LoadLocation(location)
+	if err != nil {
+		fmt.Println(time.Now().Location().String())
+		panic(err)
+	}
+	return loc
 }
