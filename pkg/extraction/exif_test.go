@@ -34,7 +34,7 @@ func TestCaptureDate(t *testing.T) {
 		{
 			name:         "sample1.JPG",
 			setTimestamp: true,
-			timeStamp:    parseTimeString(t, "2015-12-24 13:59:17 +0100 CET"),
+			timeStamp:    parseTimeString(t, "2015-12-24 13:59:17 +0100 CET").Local(),
 		},
 		{
 			name:         "sample2.mp4",
@@ -59,7 +59,7 @@ func TestCaptureDate(t *testing.T) {
 				assert.Nil(t, os.Chtimes(fileUnderTest, test.timeStamp, test.timeStamp))
 			}
 			ts, err := CaptureDate(fileUnderTest)
-			assert.True(t, test.timeStamp.Equal(ts))
+			assert.True(t, test.timeStamp.Equal(ts), "expected: %v, got: %v", test.timeStamp, ts)
 			if test.expectedError != "" {
 				assert.EqualError(t, err, fmt.Sprintf(test.expectedError, fileUnderTest))
 			} else {
