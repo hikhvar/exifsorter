@@ -34,7 +34,7 @@ func TestCaptureDate(t *testing.T) {
 		{
 			name:         "sample1.JPG",
 			setTimestamp: true,
-			timeStamp:    parseTimeString(t, "2015-12-24 13:59:17 +0100 CET").In(mustBeLocation("Europe/Berlin")),
+			timeStamp:    parseTimeString(t, "2015-12-24 13:59:17 +0100 CET").In(mustBeLocation("Europe/Berlin")).UTC().Local(),
 		},
 		{
 			name:         "sample2.mp4",
