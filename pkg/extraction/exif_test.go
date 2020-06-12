@@ -34,7 +34,7 @@ func TestCaptureDate(t *testing.T) {
 		{
 			name:         "sample1.JPG",
 			setTimestamp: true,
-			timeStamp:    parseTimeString(t, "2015-12-24 13:59:17 +0100 CET").In(mustBeLocation("Europe/Berlin")).UTC().Local(),
+			timeStamp:    parseTimeString(t, "2015-12-24 13:59:17 +0100 CET"),
 		},
 		{
 			name:         "sample2.mp4",
@@ -70,7 +70,7 @@ func TestCaptureDate(t *testing.T) {
 }
 
 func parseTimeString(t *testing.T, ts string) time.Time {
-	ti, err := time.Parse("2006-01-02 15:04:05.999999999 -0700 MST", ts)
+	ti, err := time.ParseInLocation("2006-01-02 15:04:05.999999999 -0700 MST", ts, time.Local)
 	if err != nil {
 		t.Fatalf("broken test setup: %s", err.Error())
 	}
