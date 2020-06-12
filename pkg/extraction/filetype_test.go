@@ -68,6 +68,7 @@ func errorMessageNotFoundByOS() string {
 	case "darwin":
 		return "could not add %s to watcher: lstat %s: no such file or directory"
 	}
+	return ""
 }
 
 func fixturePath(fixtureName string) string {
