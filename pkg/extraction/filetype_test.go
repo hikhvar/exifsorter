@@ -17,6 +17,7 @@ package extraction
 import (
 	"fmt"
 	"path"
+	"runtime"
 	"testing"
 
 	"os"
@@ -45,7 +46,7 @@ func TestIsVideoOrImage(t *testing.T) {
 		{
 			name:          "sample-not-exist",
 			fileOrVideo:   false,
-			expectedError: "could not open file to determine file type: open %s: no such file or directory",
+			expectedError: errorMessageNotFoundByOS(),
 		},
 	}
 	for _, test := range tests {
@@ -57,6 +58,15 @@ func TestIsVideoOrImage(t *testing.T) {
 				assert.EqualError(t, err, fmt.Sprintf(test.expectedError, fileUnderTest))
 			}
 		})
+	}
+}
+
+func errorMessageNotFoundByOS() string {
+	switch runtime.GOOS {
+	case "linux":
+		return "could not open file to determine file type: open %s: no such file or directory"
+	case "darwin":
+		return "could not add %s to watcher: lstat %s: no such file or directory"
 	}
 }
 
