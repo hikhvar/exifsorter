@@ -39,12 +39,12 @@ func TestCaptureDate(t *testing.T) {
 		{
 			name:         "sample2.mp4",
 			setTimestamp: true,
-			timeStamp:    parseTimeString(t, "2016-04-02 09:23:56 +0000 UTC").UTC().Local(),
+			timeStamp:    parseTimeString(t, "2016-04-02 09:23:56 +0000 UTC"),
 		},
 		{
 			name:         "sample3.txt",
 			setTimestamp: true,
-			timeStamp:    parseTimeString(t, "2018-06-15 15:24:26.263360885 +0000 UTC").UTC().Local(),
+			timeStamp:    parseTimeString(t, "2018-06-15 15:24:26.263360885 +0000 UTC"),
 		},
 		{
 			name:          "sample-not-exist",
@@ -74,7 +74,7 @@ func parseTimeString(t *testing.T, ts string) time.Time {
 	if err != nil {
 		t.Fatalf("broken test setup: %s", err.Error())
 	}
-	return ti
+	return ti.UTC()
 }
 
 func mustBeLocation(location string) *time.Location {
