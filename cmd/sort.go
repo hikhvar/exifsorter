@@ -105,7 +105,7 @@ func init() {
 
 	sortCmd.PersistentFlags().StringP("target", "t", "", "target directory")
 
-	sortCmd.PersistentFlags().StringArrayVarP(&ignorePatterns, "ignores", "i", []string{"**.@__thumb**", "**.syncthing.*tmp"}, "file patterns to ignore. For supported patterns see https://github.com/gobwas/glob .")
+	sortCmd.PersistentFlags().StringArrayVarP(&ignorePatterns, "ignores", "i", []string{"**.@__thumb**", "**.syncthing.*tmp", "**.!sync"}, "file patterns to ignore. For supported patterns see https://github.com/gobwas/glob .")
 
 	sortCmd.PersistentFlags().BoolP("dry-run", "d", false, "dry run. Don't edit anything.")
 }
