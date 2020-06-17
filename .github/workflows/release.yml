@@ -32,6 +32,6 @@ jobs:
       - name: Build the Docker image
         run: docker build -t hikhvar/exifsorter:${GITHUB_REF##*/} .
       - name: Login to Github
-        run: echo ${{ secrets.DOCKERHUB_ACCESS_TOKEN }} | docker login -u hikhvar --password-stdin
+        run: echo ${{ secrets.DOCKERHUB_ACCESS_KEY }} | docker login -u hikhvar --password-stdin
       - name: Publish tag image
         run: docker push hikhvar/exifsorter:${GITHUB_REF##*/}
