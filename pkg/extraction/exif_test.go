@@ -77,12 +77,3 @@ func parseTimeString(t *testing.T, ts string) time.Time {
 	}
 	return ti.UTC().Local()
 }
-
-func mustBeLocation(location string) *time.Location {
-	loc, err := time.LoadLocation(location)
-	if err != nil {
-		fmt.Println(time.Now().Location().String())
-		panic(err)
-	}
-	return loc
-}
