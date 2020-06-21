@@ -1,16 +1,17 @@
 
 .PHONY: test
 
+all: clean container
 
-build: bin/exifsorter
+build: exifsorter
 
 GOVARIABLES=GO111MODULE=on
 
 clean:
-	rm -rf bin/exifsorter
+	rm -rf exifsorter
 
-bin/exifsorter:
-	$(GOVARIABLES) go build -o bin/exifsorter .
+exifsorter:
+	$(GOVARIABLES) go build -o exifsorter .
 
 test:
 	$(GOVARIABLES) go test -cover -race ./...
@@ -18,7 +19,7 @@ test:
 vet:
 	$(GOVARIABLES) go vet ./...
 
-container:
+container: build
 	docker build -t exifsorter .
 
 vendor:
