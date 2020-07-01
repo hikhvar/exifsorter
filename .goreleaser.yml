@@ -56,6 +56,16 @@ changelog:
     exclude:
     - '^docs:'
     - '^test:'
+nfpms:
+  - id: default
+    vendor: Christoph Petrausch
+    homepage: https://github.com/hikhvar/exifsorter
+    description: sort media files according to the exif meta data. WIP. Heavy WIP.
+    license: Apache License 2.0
+    formats:
+      - deb
+      - rpm
+
 dockers:
   - image_templates:
     - "hikhvar/exifsorter:{{ .Tag }}"
