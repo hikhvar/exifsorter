@@ -37,7 +37,13 @@ var sortCmd = &cobra.Command{
 		ctx, cancelFunc := context.WithCancel(context.Background())
 		defer cancelFunc()
 		srcDir, dstDir := srcAndDstDir(cmd)
-		a := archive.NewAlgorithm(dstDir)
+		a := archive.NewAlgorithm(srcDir, dstDir)
+		err := a.Init()
+		if err != nil {
+			fmt.Printf("failed to create target directories: %v", err)
+			os.Exit(1)
+		}
+
 		ignores, err := exploration.GobwasMatcherFromPatterns(ignorePatterns)
 		if err != nil {
 			fmt.Printf("not valid globs '%v': %v", ignorePatterns, err.Error())

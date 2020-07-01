@@ -1,6 +1,7 @@
 package archive
 
 import (
+	"path/filepath"
 	"time"
 
 	"os"
@@ -31,6 +32,7 @@ type IsMedia func(fname string) (bool, error)
 
 type Algorithm struct {
 	archiveDir       string
+	sourceDir        string
 	copier           Copier
 	directoryCreator DirectoryCreator
 	extractor        DateExtractor
@@ -38,14 +40,29 @@ type Algorithm struct {
 }
 
 // NewArchive returns a new Algorithm.
-func NewAlgorithm(dir string) *Algorithm {
+func NewAlgorithm(src, dst string) *Algorithm {
 	return &Algorithm{
-		archiveDir:       dir,
+		archiveDir:       dst,
+		sourceDir:        src,
 		copier:           files.Copy,
 		directoryCreator: os.MkdirAll,
 		extractor:        extraction.CaptureDate,
 		isMedia:          extraction.IsVideoOrImage,
 	}
+}
+
+// Init creates all required target directories
+func (a *Algorithm) Init() error {
+	err := a.directoryCreator(a.allArchiveDir(), os.ModePerm)
+	if err != nil {
+		return errors.Wrapf(err, "could not create target dir '%s'", a.allArchiveDir())
+	}
+
+	err = a.directoryCreator(a.originArchiveDir(), os.ModePerm)
+	if err != nil {
+		return errors.Wrapf(err, "could not create target dir '%s'", a.originArchiveDir())
+	}
+	return nil
 }
 
 func (a *Algorithm) Sort(fname string) (string, error) {
@@ -69,12 +86,6 @@ func (a *Algorithm) Sort(fname string) (string, error) {
 		return "", errors.Wrapf(err, "could not create target dir '%s'", targetDir)
 	}
 
-	allArchiveDir := path.Join(a.archiveDir, "all")
-	err = a.directoryCreator(allArchiveDir, os.ModePerm)
-	if err != nil {
-		return "", errors.Wrapf(err, "could not create target dir '%s'", allArchiveDir)
-	}
-
 	tmpFile := path.Join(targetDir, "exifsorter.tmp")
 	sum, err := a.copier(fname, tmpFile, sha256.New224())
 	if err != nil {
@@ -88,14 +99,43 @@ func (a *Algorithm) Sort(fname string) (string, error) {
 		return tmpFile, errors.Wrap(err, "could not mv temporary file to target name")
 	}
 
-	allArchiveName := path.Join(allArchiveDir, targetFileName)
-	os.Remove(allArchiveName) // nolint:errcheck
-	err = os.Link(targetFilePath, allArchiveName)
+	allArchiveName := path.Join(a.allArchiveDir(), targetFileName)
+	originArchiveName, err := a.originArchiveFileName(fname, targetFileName)
 	if err != nil {
-		return targetFilePath, errors.Wrap(err, "can not hard link to all archive")
+		return targetFilePath, errors.Wrap(err, "failed to determine relative path")
 	}
+	return targetFilePath, a.createLinks([]string{allArchiveName, originArchiveName}, targetFilePath)
+}
 
-	return targetFilePath, nil
+// createLinks create a symlink from every path in paths to the given target
+func (a *Algorithm) createLinks(paths []string, target string) error {
+	for _, p := range paths {
+		os.Remove(p) // nolint:errcheck
+		a.directoryCreator(filepath.Dir(p), os.ModePerm)
+		err := os.Link(target, p)
+		if err != nil {
+			return errors.Wrap(err, "can not hard link to all archive")
+		}
+	}
+	return nil
+}
+
+func (a *Algorithm) originArchiveFileName(sourceFileName string, targetFileName string) (string, error) {
+	pathInSrc, err := filepath.Rel(a.sourceDir, sourceFileName)
+	if err != nil {
+		return "", errors.Wrap(err, "failed to compute relative path in source")
+	}
+	dirName := filepath.Dir(pathInSrc)
+	pathInOrigin := path.Join(dirName, targetFileName)
+	return path.Join(a.originArchiveDir(), pathInOrigin), nil
+}
+
+func (a *Algorithm) allArchiveDir() string {
+	return path.Join(a.archiveDir, "all")
+}
+
+func (a *Algorithm) originArchiveDir() string {
+	return path.Join(a.archiveDir, "origin")
 }
 
 func getYearMonth(t time.Time) (int, int) {
