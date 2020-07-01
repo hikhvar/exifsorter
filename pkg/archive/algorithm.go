@@ -111,8 +111,11 @@ func (a *Algorithm) Sort(fname string) (string, error) {
 func (a *Algorithm) createLinks(paths []string, target string) error {
 	for _, p := range paths {
 		os.Remove(p) // nolint:errcheck
-		a.directoryCreator(filepath.Dir(p), os.ModePerm)
-		err := os.Link(target, p)
+		err := a.directoryCreator(filepath.Dir(p), os.ModePerm)
+		if err != nil {
+			return errors.Wrap(err, "can not create directory for link")
+		}
+		err = os.Link(target, p)
 		if err != nil {
 			return errors.Wrap(err, "can not hard link to all archive")
 		}

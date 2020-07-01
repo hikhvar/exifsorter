@@ -19,6 +19,9 @@ test:
 vet:
 	$(GOVARIABLES) go vet ./...
 
+lint:
+	golangci-lint run
+
 container: build
 	docker build -t exifsorter .
 
