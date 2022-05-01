@@ -1,21 +1,19 @@
 package archive
 
 import (
+	"crypto/sha256"
+	"fmt"
+	"hash"
+	"os"
+	"path"
 	"path/filepath"
 	"time"
 
-	"os"
-
-	"fmt"
-	"path"
-
-	"crypto/sha256"
-	"hash"
-
 	"github.com/fsnotify/fsnotify"
+	"github.com/pkg/errors"
+
 	"github.com/hikhvar/exifsorter/pkg/extraction"
 	"github.com/hikhvar/exifsorter/pkg/files"
-	"github.com/pkg/errors"
 )
 
 const targetTimeFormat = "20060102_150405"
@@ -28,37 +26,38 @@ type Copier func(src, dst string, hFunc hash.Hash) (hashSum []byte, err error)
 type Linker func(old, new string) error
 type DirectoryCreator func(dirPath string, perm os.FileMode) error
 type DateExtractor func(fname string) (time.Time, error)
+
 type IsMedia func(fname string) (bool, error)
 
 type Algorithm struct {
-	archiveDir       string
-	sourceDir        string
-	copier           Copier
-	directoryCreator DirectoryCreator
-	extractor        DateExtractor
-	isMedia          IsMedia
+	archiveDir string
+	sourceDir  string
+	copier     Copier
+	fileSystem FileSystem
+	extractor  DateExtractor
+	isMedia    IsMedia
 }
 
-// NewArchive returns a new Algorithm.
+// NewAlgorithm returns a new Algorithm.
 func NewAlgorithm(src, dst string) *Algorithm {
 	return &Algorithm{
-		archiveDir:       dst,
-		sourceDir:        src,
-		copier:           files.Copy,
-		directoryCreator: os.MkdirAll,
-		extractor:        extraction.CaptureDate,
-		isMedia:          extraction.IsVideoOrImage,
+		archiveDir: dst,
+		sourceDir:  src,
+		copier:     files.Copy,
+		fileSystem: NewOSFileSystem(),
+		extractor:  extraction.CaptureDate,
+		isMedia:    extraction.IsVideoOrImage,
 	}
 }
 
 // Init creates all required target directories
 func (a *Algorithm) Init() error {
-	err := a.directoryCreator(a.allArchiveDir(), os.ModePerm)
+	err := a.fileSystem.EnsureDirectory(a.allArchiveDir())
 	if err != nil {
 		return errors.Wrapf(err, "could not create target dir '%s'", a.allArchiveDir())
 	}
 
-	err = a.directoryCreator(a.originArchiveDir(), os.ModePerm)
+	err = a.fileSystem.EnsureDirectory(a.originArchiveDir())
 	if err != nil {
 		return errors.Wrapf(err, "could not create target dir '%s'", a.originArchiveDir())
 	}
@@ -80,8 +79,14 @@ func (a *Algorithm) Sort(fname string) (string, error) {
 	}
 
 	year, month := getYearMonth(date)
-	targetDir := path.Join(a.archiveDir, fmt.Sprintf("%d/%02d", year, month))
-	err = a.directoryCreator(targetDir, os.ModePerm)
+
+	targetDir, err := path.Join(a.archiveDir, fmt.Sprintf("%d/%02d", year, month)), nil
+	if err != nil {
+		return "", errors.Wrap(err, "could not determine creation date of media file")
+
+	}
+
+	err = a.fileSystem.EnsureDirectory(targetDir)
 	if err != nil {
 		return "", errors.Wrapf(err, "could not create target dir '%s'", targetDir)
 	}
@@ -104,23 +109,7 @@ func (a *Algorithm) Sort(fname string) (string, error) {
 	if err != nil {
 		return targetFilePath, errors.Wrap(err, "failed to determine relative path")
 	}
-	return targetFilePath, a.createLinks([]string{allArchiveName, originArchiveName}, targetFilePath)
-}
-
-// createLinks create a symlink from every path in paths to the given target
-func (a *Algorithm) createLinks(paths []string, target string) error {
-	for _, p := range paths {
-		os.Remove(p) // nolint:errcheck
-		err := a.directoryCreator(filepath.Dir(p), os.ModePerm)
-		if err != nil {
-			return errors.Wrap(err, "can not create directory for link")
-		}
-		err = os.Link(target, p)
-		if err != nil {
-			return errors.Wrap(err, "can not hard link to all archive")
-		}
-	}
-	return nil
+	return targetFilePath, a.fileSystem.CreateLinks([]string{allArchiveName, originArchiveName}, targetFilePath)
 }
 
 func (a *Algorithm) originArchiveFileName(sourceFileName string, targetFileName string) (string, error) {
