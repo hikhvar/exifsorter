@@ -1,8 +1,8 @@
 package filetype
 
 import (
-	"gopkg.in/h2non/filetype.v1/matchers"
-	"gopkg.in/h2non/filetype.v1/types"
+	"github.com/h2non/filetype/matchers"
+	"github.com/h2non/filetype/types"
 )
 
 // Image tries to match a file as image type
@@ -57,6 +57,28 @@ func Archive(buf []byte) (types.Type, error) {
 // IsArchive checks if the given buffer is an archive type
 func IsArchive(buf []byte) bool {
 	kind, _ := Archive(buf)
+	return kind != types.Unknown
+}
+
+// Document tries to match a file as document type
+func Document(buf []byte) (types.Type, error) {
+	return doMatchMap(buf, matchers.Document)
+}
+
+// IsDocument checks if the given buffer is an document type
+func IsDocument(buf []byte) bool {
+	kind, _ := Document(buf)
+	return kind != types.Unknown
+}
+
+// Application tries to match a file as an application type
+func Application(buf []byte) (types.Type, error) {
+	return doMatchMap(buf, matchers.Application)
+}
+
+// IsApplication checks if the given buffer is an application type
+func IsApplication(buf []byte) bool {
+	kind, _ := Application(buf)
 	return kind != types.Unknown
 }
 
