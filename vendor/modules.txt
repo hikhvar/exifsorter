@@ -1,5 +1,10 @@
 # github.com/BurntSushi/toml v0.3.1
 ## explicit
+# github.com/corona10/goimagehash v1.0.2
+## explicit
+github.com/corona10/goimagehash
+github.com/corona10/goimagehash/etcs
+github.com/corona10/goimagehash/transforms
 # github.com/davecgh/go-spew v1.1.0
 ## explicit
 github.com/davecgh/go-spew/spew
@@ -43,6 +48,8 @@ github.com/mitchellh/go-homedir
 # github.com/mitchellh/mapstructure v0.0.0-20180511142126-bb74f1db0675
 ## explicit
 github.com/mitchellh/mapstructure
+# github.com/nfnt/resize v0.0.0-20160724205520-891127d8d1b5
+github.com/nfnt/resize
 # github.com/pelletier/go-toml v1.2.0
 ## explicit
 github.com/pelletier/go-toml
@@ -74,13 +81,18 @@ github.com/spf13/viper
 # github.com/stretchr/testify v1.2.2
 ## explicit
 github.com/stretchr/testify/assert
+# github.com/timshannon/bolthold v0.0.0-20200603170222-fa67e4fbfbc3
+## explicit
+github.com/timshannon/bolthold
 # github.com/xor-gate/goexif2 v1.1.0
 ## explicit
 github.com/xor-gate/goexif2/exif
 github.com/xor-gate/goexif2/mknote
 github.com/xor-gate/goexif2/tiff
-# golang.org/x/sys v0.0.0-20180615093615-8014b7b116a6
+# go.etcd.io/bbolt v1.3.5
 ## explicit
+go.etcd.io/bbolt
+# golang.org/x/sys v0.0.0-20200202164722-d101bd2416d5
 golang.org/x/sys/unix
 # golang.org/x/text v0.3.0
 ## explicit

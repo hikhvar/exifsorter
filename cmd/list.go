@@ -16,7 +16,10 @@ package cmd
 
 import (
 	"fmt"
+	"image/jpeg"
+	"os"
 
+	"github.com/corona10/goimagehash"
 	"github.com/hikhvar/exifsorter/pkg/exploration"
 	"github.com/hikhvar/exifsorter/pkg/extraction"
 	"github.com/spf13/cobra"
@@ -33,17 +36,41 @@ var listCmd = &cobra.Command{
 		if err != nil {
 			fmt.Printf("could not list all files %s", err.Error())
 		}
+		var prevHash *goimagehash.ExtImageHash
 		for _, f := range files {
 			voi, err := extraction.IsVideoOrImage(f)
 			if err != nil {
 				fmt.Printf("not a video or image %s: %s\n", f, err.Error())
-			} else if voi {
+				continue
+			}
+			if voi {
 				date, err := extraction.CaptureDate(f)
 				if err != nil {
 					fmt.Printf("could not determine capture date %s: %s\n", f, err.Error())
-				} else {
-					fmt.Printf("exif date of file %s is: %v\n", f, date)
+					continue
 				}
+				fi, err := os.Open(f)
+				if err != nil {
+					fmt.Printf("failed to open image: %s: %s\n", f, err.Error())
+				}
+				jpg, err := jpeg.Decode(fi)
+				if err != nil {
+					fmt.Printf("failed to decode jpg: %s  %s\n", f, err.Error())
+				}
+				hash, err := goimagehash.ExtAverageHash(jpg, 8, 8)
+				if err != nil {
+					fmt.Printf("failed to hash jpg: %s  %s\n", f, err.Error())
+				}
+				var distance int
+				if prevHash != nil {
+					distance, err = hash.Distance(prevHash)
+					if err != nil {
+						fmt.Printf("failed to compute distance hash: %s  %s\n", f, err.Error())
+					}
+				}
+				prevHash = hash
+
+				fmt.Printf("exif date of file %s is: %v and hash is: %v distance: %v\n", f, date, hash.ToString(), distance)
 
 			}
 		}

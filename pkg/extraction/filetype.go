@@ -23,18 +23,34 @@ import (
 
 // IsVideoOrImage return true if the given file is a video or an image
 func IsVideoOrImage(fname string) (bool, error) {
+	header, err := readFileHeader(fname)
+	if err != nil {
+		return false, errors.Wrap(err, "failed to read file header")
+	}
+	return filetype.IsImage(header) || filetype.IsVideo(header), nil
+}
+
+// readFileHeader reads the first 261 bytes of a file. This is enough to determine the filetype.
+func readFileHeader(fname string) ([]byte, error) {
 	// Open a file descriptor
 	file, err := os.Open(fname)
 	if err != nil {
-		return false, errors.Wrap(err, "could not open file to determine file type")
+		return nil, errors.Wrap(err, "could not open file to determine file type")
 	}
 	defer file.Close()
 
 	// We only have to pass the file header = first 261 bytes
-	head := make([]byte, 261)
-	_, err = file.Read(head)
+	header := make([]byte, 261)
+	_, err = file.Read(header)
+
+	return header, errors.Wrap(err, "could not read file header to determine file type")
+}
+
+// IsImage returns true if the given file is an Image
+func IsImage(fname string) (bool, error) {
+	header, err := readFileHeader(fname)
 	if err != nil {
-		return false, errors.Wrap(err, "could not read file header to determine file type")
+		return false, errors.Wrap(err, "failed to read file header")
 	}
-	return filetype.IsImage(head) || filetype.IsVideo(head), nil
+	return filetype.IsImage(header), nil
 }
