@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - name: Unshallow
         run: git fetch --prune --unshallow
       - name: Set up Go
@@ -24,7 +24,7 @@ jobs:
       - name: Login to Github
         run: echo ${{ secrets.DOCKERHUB_ACCESS_KEY }} | docker login -u hikhvar --password-stdin
       - name: Run GoReleaser
-        uses: goreleaser/goreleaser-action@v1
+        uses: goreleaser/goreleaser-action@v4
         with:
           version: latest
           args: release --rm-dist
