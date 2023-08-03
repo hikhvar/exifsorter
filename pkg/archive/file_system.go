@@ -64,6 +64,9 @@ func (fs FileSystem) EnsureDirectory(name string) error {
 func (fs FileSystem) CreateLinks(paths []string, target string) error {
 	for _, p := range paths {
 		err := fs.EnsureAbsent(p)
+		if err != nil {
+			return errors.Wrap(err, "can't ensure file is not currently absent")
+		}
 		err = fs.EnsureDirectory(filepath.Dir(p))
 		if err != nil {
 			return errors.Wrap(err, "can not create directory for link")

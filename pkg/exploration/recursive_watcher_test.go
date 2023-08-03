@@ -19,7 +19,6 @@ import (
 	"os"
 	"testing"
 
-	"io/ioutil"
 	"time"
 
 	"path"
@@ -190,7 +189,7 @@ func joinExpectedEventsWithDir(testDir string, expectedEvents []fsnotify.Event) 
 }
 
 func createTempDir(t *testing.T) string {
-	dir, err := ioutil.TempDir("", "TestNewRecursiveWatcher")
+	dir, err := os.MkdirTemp("", "TestNewRecursiveWatcher")
 	if err != nil {
 		t.Fatalf("broken test setup. can not create tempDir %s", err.Error())
 	}
