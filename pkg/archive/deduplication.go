@@ -44,15 +44,16 @@ func DeduplicateAll(archiveRoot string, duplicates [][]string, creator FileSyste
 // DeDuplicate files in the given archiveRoot. All files in duplicateFiles must start with the prefix archiveRoot.
 // This function assumes the canonical archive layout:
 // /archiveRoot/
-//   / YEAR
-//      / Month1
-//      / Month2
-//   / all
-//   / origin
-//      / dirOne
-//      / dirTwo
+//
+//	/ YEAR
+//	   / Month1
+//	   / Month2
+//	/ origin
+//	   / dirOne
+//	   / dirTwo
+//
 // The file in DedupTask.ToKeep will be in the directory /YEAR/MONTH. If there are multiple files in the /YEAR/MONTH directories, the first file is kept.
-// At most one file in /all is kept, at most one file in every directory below /origin is kept.
+// At most one file in every directory below /origin is kept.
 func DeDuplicate(archiveRoot string, duplicateFiles []string) (DeDupTask, error) {
 	sort.Strings(duplicateFiles)
 	ret := DeDupTask{}

@@ -30,7 +30,7 @@ func TestDeDuplicate(t *testing.T) {
 			name: "no file in calendar directory",
 			args: args{
 				archiveRoot:    "Archive",
-				duplicateFiles: []string{"Archive/all/20190417_133044_537842c8.jpg", "Archive/origin/04/20190417_151708_537842c8.jpg"},
+				duplicateFiles: []string{"Archive/origin/04/20190417_151708_537842c8.jpg"},
 			},
 			want:      DeDupTask{},
 			errAssert: assert.Error,
@@ -44,19 +44,6 @@ func TestDeDuplicate(t *testing.T) {
 			want: DeDupTask{
 				ToKeep:      "Archive/2019/04/20190417_133044_537842c8.jpg",
 				DeleteFiles: []string{"Archive/2019/04/20190417_151708_537842c8.jpg"},
-			},
-			errAssert: assert.NoError,
-		},
-		{
-			name: "keep only one file in all",
-			args: args{
-				archiveRoot:    "Archive",
-				duplicateFiles: []string{"Archive/2019/04/20190417_133044_537842c8.jpg", "Archive/all/20190417_133044_537842c8.jpg", "Archive/all/20190417_151708_537842c8.jpg"},
-			},
-			want: DeDupTask{
-				ToKeep:        "Archive/2019/04/20190417_133044_537842c8.jpg",
-				ReCreateLinks: []string{"Archive/all/20190417_133044_537842c8.jpg"},
-				DeleteFiles:   []string{"Archive/all/20190417_151708_537842c8.jpg"},
 			},
 			errAssert: assert.NoError,
 		},

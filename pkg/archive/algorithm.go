@@ -52,12 +52,7 @@ func NewAlgorithm(src, dst string) *Algorithm {
 
 // Init creates all required target directories
 func (a *Algorithm) Init() error {
-	err := a.fileSystem.EnsureDirectory(a.allArchiveDir())
-	if err != nil {
-		return errors.Wrapf(err, "could not create target dir '%s'", a.allArchiveDir())
-	}
-
-	err = a.fileSystem.EnsureDirectory(a.originArchiveDir())
+	err := a.fileSystem.EnsureDirectory(a.originArchiveDir())
 	if err != nil {
 		return errors.Wrapf(err, "could not create target dir '%s'", a.originArchiveDir())
 	}
@@ -104,12 +99,11 @@ func (a *Algorithm) Sort(fname string) (string, error) {
 		return tmpFile, errors.Wrap(err, "could not mv temporary file to target name")
 	}
 
-	allArchiveName := path.Join(a.allArchiveDir(), targetFileName)
 	originArchiveName, err := a.originArchiveFileName(fname, targetFileName)
 	if err != nil {
 		return targetFilePath, errors.Wrap(err, "failed to determine relative path")
 	}
-	return targetFilePath, a.fileSystem.CreateLinks([]string{allArchiveName, originArchiveName}, targetFilePath)
+	return targetFilePath, a.fileSystem.CreateLinks([]string{originArchiveName}, targetFilePath)
 }
 
 func (a *Algorithm) originArchiveFileName(sourceFileName string, targetFileName string) (string, error) {
@@ -120,10 +114,6 @@ func (a *Algorithm) originArchiveFileName(sourceFileName string, targetFileName 
 	dirName := filepath.Dir(pathInSrc)
 	pathInOrigin := path.Join(dirName, targetFileName)
 	return path.Join(a.originArchiveDir(), pathInOrigin), nil
-}
-
-func (a *Algorithm) allArchiveDir() string {
-	return path.Join(a.archiveDir, "all")
 }
 
 func (a *Algorithm) originArchiveDir() string {
