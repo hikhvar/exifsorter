@@ -54,15 +54,19 @@ var sortCmd = &cobra.Command{
 			fmt.Println(err)
 			os.Exit(1)
 		}
-		for _, f := range fs {
-			n, err := a.Sort(f)
-			if err != nil && err.Error() != "given file is not a media file" {
-				fmt.Printf("Can't sort file %v: %v", f, err.Error())
-			} else {
-				fmt.Printf("%s\t-->\t%s\n", f, n)
+		if set, err := cmd.Flags().GetBool("watch-only"); err != nil || !set {
+			fmt.Println("Start intial compare run")
+			for _, f := range fs {
+				n, err := a.Sort(f)
+				if err != nil && err.Error() != "given file is not a media file" {
+					fmt.Printf("Can't sort file %v: %v", f, err.Error())
+				} else {
+					fmt.Printf("%s\t-->\t%s\n", f, n)
+				}
 			}
+			fmt.Println("finished intial run. Watch folder for changes.")
 		}
-		fmt.Println("finished intial run. Watch folder for changes.")
+
 		watcher, err := exploration.NewRecursiveWatcher(ctx, ignores, dirs...)
 		if err != nil {
 			fmt.Println(err)
@@ -114,4 +118,5 @@ func init() {
 	sortCmd.PersistentFlags().StringArrayVarP(&ignorePatterns, "ignores", "i", []string{"**.@__thumb**", "**.syncthing.*tmp", "**.!sync"}, "file patterns to ignore. For supported patterns see https://github.com/gobwas/glob .")
 
 	sortCmd.PersistentFlags().BoolP("dry-run", "d", false, "dry run. Don't edit anything.")
+	sortCmd.PersistentFlags().BoolP("watch-only", "w", false, "only watch new files")
 }

@@ -2,9 +2,11 @@ package archive
 
 import (
 	"fmt"
+	"io/fs"
 	"log"
 	"os"
 	"path/filepath"
+	"time"
 
 	"github.com/pkg/errors"
 
@@ -16,6 +18,7 @@ func NewOSFileSystem() FileSystem {
 		fd:            os.Remove,
 		linker:        os.Link,
 		mkdir:         os.MkdirAll,
+		stater:        os.Stat,
 		isMedia:       extraction.IsVideoOrImage,
 		dateExtractor: extraction.CaptureDate,
 	}
@@ -35,12 +38,17 @@ func NewLoggingFileSystem() FileSystem {
 			log.Printf("[DRY-RUN] create directory %s with mode %s", dirPath, perm)
 			return nil
 		},
+		stater: func(name string) (os.FileInfo, error) {
+			log.Printf("[DRY-RUN] stat %s", name)
+			return FakeFileInfo{name}, nil
+		},
 	}
 }
 
 type FileSystem struct {
 	fd            FileDeleter
 	linker        Linker
+	stater        Stater
 	mkdir         DirectoryCreator
 	isMedia       IsMedia
 	dateExtractor DateExtractor
@@ -77,4 +85,48 @@ func (fs FileSystem) CreateLinks(paths []string, target string) error {
 		}
 	}
 	return nil
+}
+
+func (fs FileSystem) EqualSize(oldFile, newFile string) (bool, error) {
+	oldStats, err := fs.stater(oldFile)
+	if err != nil {
+		return false, fmt.Errorf("failed to stat old file: %w", err)
+	}
+	newStats, err := fs.stater(newFile)
+	if err != nil {
+		return false, fmt.Errorf("failed to stat new file: %w", err)
+	}
+	return oldStats.Size() == newStats.Size(), nil
+}
+
+type FakeFileInfo struct {
+	name string
+}
+
+func (f FakeFileInfo) Name() string {
+	return f.name
+}
+
+func (f FakeFileInfo) Size() int64 {
+	return 0
+}
+
+func (f FakeFileInfo) Mode() fs.FileMode {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (f FakeFileInfo) ModTime() time.Time {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (f FakeFileInfo) IsDir() bool {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (f FakeFileInfo) Sys() any {
+	//TODO implement me
+	panic("implement me")
 }
