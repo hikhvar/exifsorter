@@ -23,7 +23,7 @@ type Watcher interface {
 }
 
 type Copier func(src, dst string, hFunc hash.Hash) (hashSum []byte, err error)
-type Linker func(old, new string) error
+type Linker func(oldName, newName string) error
 type Stater func(filename string) (os.FileInfo, error)
 type DirectoryCreator func(dirPath string, perm os.FileMode) error
 type DateExtractor func(fname string) (time.Time, error)

@@ -5,8 +5,6 @@ all: clean container
 
 build: exifsorter
 
-GOVARIABLES=GO111MODULE=on
-
 clean:
 	rm -rf exifsorter
 
